@@ -1,6 +1,7 @@
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Feather } from '@expo/vector-icons'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import Home from '../screens/Home'
 import Search from '../screens/Search'
 import Favorite from '../screens/Favorite'
