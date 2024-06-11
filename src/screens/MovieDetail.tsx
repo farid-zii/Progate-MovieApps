@@ -1,14 +1,14 @@
 import React from 'react'
 import { Button, StyleSheet, Text, View } from 'react-native'
 
-const Home = ({navigation}:any):JSX.Element => {
+const MovieDetail = ({navigation}:any):JSX.Element => {
   return (
     <View style={styles.container}>
-        <Text>Home</Text>
+        <Text>MovieDetail</Text>
         <Button title='Pindah Halaman' onPress={()=>
-          navigation.navigate('MovieDetail') 
+          navigation.navigate('Home') 
       }/>
-    </View>
+    </View> 
   )
 }
 
@@ -22,4 +22,4 @@ const styles = StyleSheet.create({
 
 
 
-export default Home
+export default MovieDetail
