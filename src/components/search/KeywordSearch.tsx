@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { TextInput, View, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { TextInput, View, FlatList, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { API_ACCESS_TOKEN } from '@env';
 import { Movie } from '../../types/app';
 import MovieItem from '../movies/MovieItem';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../types/navigation';
 
 const KeywordSearch = () => {
   const [keyword, setKeyword] = useState<string>('');
   const [results, setResults] = useState<Movie[]>([]);
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation();
 
   const searchMovies = async (): Promise<void> => {
     const url = `https://api.themoviedb.org/3/search/movie?query=${keyword}&page=1`;
@@ -55,7 +53,7 @@ const KeywordSearch = () => {
         renderItem={({ item }) => (
           <TouchableOpacity 
             style={styles.movieItemContainer} 
-            onPress={() => navigation.navigate('MovieDetail', { data: { movie: item, coverType: 'poster' } })}
+            onPress={() => {console.log('jai')}}
           >
             <MovieItem movie={item} size={{ width: 100, height: 160 }} coverType="poster" />
           </TouchableOpacity>
