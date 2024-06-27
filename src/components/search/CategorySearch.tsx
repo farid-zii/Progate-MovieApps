@@ -9,8 +9,6 @@ const CategorySearch = () => {
     const [category,setCategory] =useState();
     const navigation = useNavigation();
 
-
-
     const getCategory = async (): Promise<void> => {
         try {
                 const url = `https://api.themoviedb.org/3/genre/movie/list`;
@@ -35,7 +33,7 @@ const CategorySearch = () => {
       };
     const geta = async (): Promise<void> => {
         try {
-                const url = `https://api.themoviedb.org/3/list/27`;
+                const url = `https://api.themoviedb.org/3/list/`;
                 const options = {
                   method: 'GET',
                   headers: {
@@ -70,7 +68,7 @@ const CategorySearch = () => {
             data={category}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-                    <TouchableOpacity style={{ margin:3,backgroundColor:'#C0B4D5',padding:15,borderRadius:10,width:'50%' }} onPress={() => navigation.navigate('Genre', { data: { name: item.name } })}>
+                    <TouchableOpacity style={{ margin:3,backgroundColor:'#C0B4D5',padding:15,borderRadius:10,width:'50%' }} onPress={() => navigation.navigate('Genre', { data: { item } })}>
                         {/* <MovieItem movie={item} size={{ width: 100, height: 160 }} coverType="poster" /> */}
                         <Text style={{ textAlign:'center',color:"white",fontWeight:'bold' }}>{item.name}</Text>
                     </TouchableOpacity>

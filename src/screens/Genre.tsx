@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { API_ACCESS_TOKEN } from '@env';
 import { Movie } from '../types/app';
+import axios from 'axios';
 
 const coverImageSize = {
   width: 100,
@@ -13,11 +14,13 @@ const coverImageSize = {
 };
 
 const Genre = ({ route }: any): JSX.Element => {
-  const [favorites, setFavorites] = useState<Movie[]>([]);
+  const [movie, setMovies] = useState<Movie[]>([]);
   const navigation = useNavigation();
-  const data = route.params.data
-
-  console.log(data.name)
+  const data = route.params.data.item
+  const genre_id = data.id
+  const name = data.name
+  console.log(data.id)
+  console.log(data)
 
   useFocusEffect(
     React.useCallback(() => {
@@ -25,14 +28,11 @@ const Genre = ({ route }: any): JSX.Element => {
     }, [])
   );
 
-  const getFavoriteMovies = async (): Promise<void> => {
+  const getFavoriteMovies = async () => {
     try {
-      const storedFavorites = await AsyncStorage.getItem('@FavoriteList');
-      if (storedFavorites !== null) {
-        const favoriteList: Movie[] = JSON.parse(storedFavorites);
-        const movieDetails = await Promise.all(
-          favoriteList.map(async (movie) => {
-            const url = `https://api.themoviedb.org/3/movie/${movie.id}`;
+      
+            const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&with_genres=${genre_id}`
+            // const url = `https://api.themoviedb.org/3/movie/22`;
             const options = {
               method: 'GET',
               headers: {
@@ -40,12 +40,12 @@ const Genre = ({ route }: any): JSX.Element => {
                 Authorization: `Bearer ${API_ACCESS_TOKEN}`,
               },
             };
-            const response = await fetch(url, options);
-            return await response.json();
-          })
-        );
-        setFavorites(movieDetails);
-      }
+            const response = await axios(url, options);
+            
+            const data = response;
+            // console.log(data.data)
+            setMovies(data.data.results)
+      
     } catch (error) {
       console.log(error);
     }
@@ -83,9 +83,9 @@ const Genre = ({ route }: any): JSX.Element => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}> Genre {data.name}</Text>
+      <Text style={styles.title}> Genre {name}</Text>
       <FlatList
-        data={favorites}
+        data={movie}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
         numColumns={3}

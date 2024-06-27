@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { TextInput, View, FlatList, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { TextInput, View, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { API_ACCESS_TOKEN } from '@env';
 import { Movie } from '../../types/app';
 import MovieItem from '../movies/MovieItem';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../types/navigation';
 
-const KeywordSearch = ({ navigation }: any) => {
+const KeywordSearch = () => {
   const [keyword, setKeyword] = useState<string>('');
   const [results, setResults] = useState<Movie[]>([]);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const searchMovies = async (): Promise<void> => {
-    const url = `https://api.themoviedb.org/3/search/keyword?query=inside&page=1`;
-    // https://api.themoviedb.org/3/search/keyword?query=a&page=1
+    const url = `https://api.themoviedb.org/3/search/movie?query=${keyword}&page=1`;
 
     const options = {
       method: 'GET',
@@ -25,48 +26,11 @@ const KeywordSearch = ({ navigation }: any) => {
     try {
       const response = await fetch(url, options);
       const data = await response.json();
-      console.log(data.results)
       setResults(data.results);
     } catch (error) {
       console.log(error);
     }
   };
-
-  const [favorites, setFavorites] = useState<Movie[]>([]);
-
-  const getFavoriteMovies = async (): Promise<void> => {
-    try {
-      const storedFavorites = await AsyncStorage.getItem('@FavoriteList');
-      if (storedFavorites !== null) {
-        const favoriteList: Movie[] = JSON.parse(storedFavorites);
-        const movieDetails = await Promise.all(
-          favoriteList.map(async (movie) => {
-            const url = `https://api.themoviedb.org/3/movie/${movie.id}`;
-            const options = {
-              method: 'GET',
-              headers: {
-                accept: 'application/json',
-                Authorization: `Bearer ${API_ACCESS_TOKEN}`,
-              },
-            };
-            const response = await fetch(url, options);
-            return await response.json();
-          })
-        );
-        console.log(movieDetails)
-        setFavorites(movieDetails);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useFocusEffect(
-    React.useCallback(() => {
-        searchMovies();
-        // getFavoriteMovies()
-    }, [])
-  );
 
   const handleSearch = () => {
     if (keyword.trim() !== '') {
@@ -74,13 +38,11 @@ const KeywordSearch = ({ navigation }: any) => {
     }
   };
 
-  // console.log(results)
-
   return (
     <View style={{ marginVertical: 10 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginVertical: 10 }}>
+      <View style={styles.searchContainer}>
         <TextInput
-          style={{ borderWidth: 1, borderColor: '#ccc', padding: 8, flex: 1, borderRadius: 15 }}
+          style={styles.searchInput}
           placeholder="Enter keyword"
           value={keyword}
           onChangeText={setKeyword}
@@ -88,13 +50,14 @@ const KeywordSearch = ({ navigation }: any) => {
         />
       </View>
       <FlatList
-        data={favorites}
+        data={results}
         keyExtractor={(item) => item.id.toString()}
-        
         renderItem={({ item }) => (
-          <TouchableOpacity style={{ margin:10 }} onPress={() => navigation.navigate('MovieDetail', { data: { movie: item, coverType: 'poster' } })}>
+          <TouchableOpacity 
+            style={styles.movieItemContainer} 
+            onPress={() => navigation.navigate('MovieDetail', { data: { movie: item, coverType: 'poster' } })}
+          >
             <MovieItem movie={item} size={{ width: 100, height: 160 }} coverType="poster" />
-            
           </TouchableOpacity>
         )}
         numColumns={3}
@@ -105,6 +68,22 @@ const KeywordSearch = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 10,
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 8,
+    flex: 1,
+    borderRadius: 15,
+  },
+  movieItemContainer: {
+    margin: 10,
+  },
   resultsContainer: {
     paddingHorizontal: 10,
   },
